@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Notify via Micrsoft Teams
 
 import os
@@ -50,7 +50,7 @@ def teams_msg(context):
             {
                 "activityTitle": "CheckMK",
                 "activitySubtitle": subtitle,
-                "activityImage": "https://checkmk.com/images/favicon.png",
+                "activityImage": "https://checkmk.com/favicon-16x16.png",
                 "facts": facts,
                 "text": output
             }
@@ -59,7 +59,7 @@ def teams_msg(context):
 
 def collect_context():
     return {
-        var[7:]: value.decode("utf-8")
+        var[7:]: value
         for (var, value) in os.environ.items()
         if var.startswith("NOTIFY_")
     }

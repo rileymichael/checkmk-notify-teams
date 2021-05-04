@@ -1,5 +1,19 @@
-#!/usr/bin/env python
-# Notify via Micrsoft Teams
+#!/bin/sh
+# Notify via Microsoft Teams
+
+""":"
+
+# check which python interpreter to use
+for cmd in python3 python; do
+   command -v "$cmd" > /dev/null && exec "$cmd" "$0" "$@" && exit 0
+done
+
+echo "unable to find suitable python interpreter"
+
+exit 2
+
+":"""
+
 
 import os
 import requests
@@ -16,8 +30,8 @@ COLORS = {
 }
 
 def teams_msg(context):
-    """Build the message for teams"""
     facts = []
+
     if context.get('WHAT', None) == "SERVICE":
         state = context["SERVICESTATE"]
         color = COLORS.get(state)
@@ -59,7 +73,7 @@ def teams_msg(context):
 
 def collect_context():
     return {
-        var[7:]: value.decode("utf-8")
+        var[7:]: value
         for (var, value) in os.environ.items()
         if var.startswith("NOTIFY_")
     }

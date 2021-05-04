@@ -64,7 +64,7 @@ def teams_msg(context):
             {
                 "activityTitle": "CheckMK",
                 "activitySubtitle": subtitle,
-                "activityImage": "https://checkmk.com/images/favicon.png",
+                "activityImage": "https://checkmk.com/favicon-32x32.png",
                 "facts": facts,
                 "text": output
             }

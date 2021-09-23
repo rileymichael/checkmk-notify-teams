@@ -29,31 +29,33 @@ COLORS = {
     "UNREACHABLE": "#CCCCCC",
 }
 
+
 def teams_msg(context):
     facts = []
 
-    if context.get('WHAT', None) == "SERVICE":
-        state = context["SERVICESTATE"]
-        color = COLORS.get(state)
-        subtitle = "Service Notification"
-        facts.append({"name": "Service:", "value": context["SERVICEDESC"]})
-        output = context["SERVICEOUTPUT"] if context["SERVICEOUTPUT"] else ""
-    else:
-        state = context["HOSTSTATE"]
-        color = COLORS.get(state)
-        subtitle = "Host Notification"
-        output = context["HOSTOUTPUT"] if context["HOSTOUTPUT"] else ""
+    type = context.get("WHAT", None)
 
-    facts.extend([
-        {
-            "name": "Host:",
-            "value": context["HOSTNAME"]
-        },
-        {
-            "name": "State:",
-            "value": state
-        }
-    ])
+    if not type:
+        sys.stderr.write("Unable to determine notification type")
+        sys.exit(2)
+
+    state = context.get("{type}STATE".format(type=type), "UNKNOWN")
+    color = COLORS.get(state)
+    subtitle = "{type} Notification".format(type=type.capitalize())
+    output = context.get("{type}OUTPUT".format(type=type))
+
+    if type == "SERVICE":
+        facts.append({"name": "Service:", "value": context.get("SERVICEDESC")})
+
+    facts.extend(
+        [
+            {"name": "Host:", "value": context.get("HOSTNAME")},
+            {"name": "State:", "value": state},
+            {"name": "Timestamp:", "value": context.get("LONGDATETIME")},
+        ]
+    )
+
+    facts = list(filter(lambda x: x["value"], facts))
 
     return {
         "@type": "MessageCard",
@@ -71,12 +73,14 @@ def teams_msg(context):
         ]
     }
 
+
 def collect_context():
     return {
         var[7:]: value
         for (var, value) in os.environ.items()
         if var.startswith("NOTIFY_")
     }
+
 
 def post_request(message_constructor, success_code=200):
     context = collect_context()
@@ -88,8 +92,11 @@ def post_request(message_constructor, success_code=200):
         sys.exit(0)
     else:
         sys.stderr.write(
-            "Failed to send notification. Status: %i, Response: %s\n" % (r.status_code, r.text))
+            "Failed to send notification. Status: %i, Response: %s\n"
+            % (r.status_code, r.text)
+        )
         sys.exit(2)
+
 
 if __name__ == "__main__":
     post_request(teams_msg)

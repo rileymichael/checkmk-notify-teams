@@ -85,7 +85,7 @@ def collect_context():
 def post_request(message_constructor, success_code=200):
     context = collect_context()
 
-    url = context.get("PARAMETERS")
+    url = context.get("PARAMETER_1")
     r = requests.post(url=url, json=message_constructor(context))
 
     if r.status_code == success_code:
